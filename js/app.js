@@ -6,22 +6,23 @@ const categoria = document.getElementById("categoria");
 
 let productos = [];
 
+// Imágenes que están directamente en el repositorio
 const imagenes = {
-    lipstick: "imagenes/labial.jpg",
-    foundation: "imagenes/base.jpg",
-    eyeshadow: "imagenes/sombra.jpg",
-    blush: "imagenes/rubor.jpg",
-    mascara: "imagenes/mascara.jpg"
+    lipstick: "labial.jpg",
+    foundation: "rubor.jpg",
+    eyeshadow: "sombra.jpg",
+    blush: "rubor.jpg",
+    mascara: "rimel.jpg"
 };
 
-const imagenRespaldo = "imagenes/labial.jpg";
+const imagenRespaldo = "labial.jpg";
 
 async function obtenerProductos() {
     try {
         const respuesta = await fetch(API_URL);
 
         if (!respuesta.ok) {
-            throw new Error("Error al conectar con la API");
+            throw new Error("No se pudo conectar con la API");
         }
 
         productos = await respuesta.json();
@@ -29,7 +30,7 @@ async function obtenerProductos() {
         mostrarProductos(productos);
 
     } catch (error) {
-        console.error(error);
+        console.error("Error:", error);
 
         if (contenedorProductos) {
             contenedorProductos.innerHTML = `
@@ -62,7 +63,7 @@ function mostrarProductos(lista) {
 
         tarjeta.className = "col-md-4 col-lg-3 mb-4";
 
-        const tipo = producto.product_type || "";
+        const tipo = (producto.product_type || "").toLowerCase();
 
         const imagen = imagenes[tipo] || imagenRespaldo;
 
@@ -72,7 +73,7 @@ function mostrarProductos(lista) {
                 <img
                     src="${imagen}"
                     class="card-img-top"
-                    alt="${producto.name || "Producto"}"
+                    alt="${producto.name || "Producto de maquillaje"}"
                     style="height: 250px; object-fit: contain; padding: 15px;"
                 >
 
@@ -83,7 +84,8 @@ function mostrarProductos(lista) {
                     </h3>
 
                     <p class="card-text">
-                        Marca: ${producto.brand || "No disponible"}
+                        Marca:
+                        ${producto.brand || "No disponible"}
                     </p>
 
                     <p class="card-text">
@@ -131,7 +133,7 @@ function filtrarProductos() {
             (producto.brand || "").toLowerCase();
 
         const categoriaProducto =
-            producto.product_type || "";
+            (producto.product_type || "").toLowerCase();
 
         const coincideTexto =
             nombre.includes(texto) ||
@@ -169,7 +171,8 @@ function cargarDetalle() {
 
     if (!datos) return;
 
-    const producto = JSON.parse(datos);
+    const producto =
+        JSON.parse(datos);
 
     const imagen =
         document.getElementById("imagenProducto");
@@ -191,7 +194,8 @@ function cargarDetalle() {
 
     if (imagen) {
 
-        const tipo = producto.product_type || "";
+        const tipo =
+            (producto.product_type || "").toLowerCase();
 
         imagen.src =
             imagenes[tipo] || imagenRespaldo;
@@ -228,10 +232,12 @@ function cargarDetalle() {
     }
 }
 
+// Cargar productos
 if (contenedorProductos) {
     obtenerProductos();
 }
 
+// Buscador
 if (buscador) {
     buscador.addEventListener(
         "input",
@@ -239,6 +245,7 @@ if (buscador) {
     );
 }
 
+// Filtro por categoría
 if (categoria) {
     categoria.addEventListener(
         "change",
@@ -246,6 +253,7 @@ if (categoria) {
     );
 }
 
+// Cargar detalle
 if (document.getElementById("detalleProducto")) {
     cargarDetalle();
 }

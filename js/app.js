@@ -41,20 +41,28 @@ function mostrarProductos(lista) {
 
     contenedorProductos.innerHTML = "";
 
+    if (lista.length === 0) {
+        contenedorProductos.innerHTML = `
+            <p class="text-center">
+                No se encontraron productos.
+            </p>
+        `;
+        return;
+    }
+
     lista.slice(0, 30).forEach((producto, indice) => {
 
         const tarjeta = document.createElement("div");
 
         tarjeta.className = "col-md-4 col-lg-3 mb-4";
 
-        // Utiliza nuestras imágenes locales
         const imagen = imagenes[indice % imagenes.length];
 
         tarjeta.innerHTML = `
             <div class="card h-100 shadow-sm">
 
                 <img
-                    src="${imagen}"
+                    src="https://lhernandez074-hub.github.io/fase-3/${imagen}"
                     class="card-img-top"
                     alt="Producto de maquillaje"
                     style="height:250px; object-fit:contain; padding:15px;"
@@ -67,7 +75,8 @@ function mostrarProductos(lista) {
                     </h3>
 
                     <p class="card-text">
-                        Marca: ${producto.brand || "No disponible"}
+                        Marca:
+                        ${producto.brand || "No disponible"}
                     </p>
 
                     <p class="card-text">
@@ -98,8 +107,13 @@ function mostrarProductos(lista) {
 
 function filtrarProductos() {
 
-    const texto = buscador.value.toLowerCase();
-    const tipo = categoria.value;
+    const texto = buscador
+        ? buscador.value.toLowerCase().trim()
+        : "";
+
+    const tipoSeleccionado = categoria
+        ? categoria.value.toLowerCase().trim()
+        : "todos";
 
     const resultado = productos.filter(producto => {
 
@@ -109,16 +123,41 @@ function filtrarProductos() {
         const marca =
             (producto.brand || "").toLowerCase();
 
-        const tipoProducto =
+        const tipo =
             (producto.product_type || "").toLowerCase();
 
         const coincideTexto =
             nombre.includes(texto) ||
             marca.includes(texto);
 
-        const coincideCategoria =
-            tipo === "todos" ||
-            tipoProducto === tipo;
+        let coincideCategoria = true;
+
+        if (tipoSeleccionado !== "todos") {
+
+            if (tipoSeleccionado === "labiales") {
+                coincideCategoria = tipo === "lipstick";
+            }
+
+            else if (tipoSeleccionado === "bases") {
+                coincideCategoria = tipo === "foundation";
+            }
+
+            else if (tipoSeleccionado === "sombras") {
+                coincideCategoria = tipo === "eyeshadow";
+            }
+
+            else if (tipoSeleccionado === "rubores") {
+                coincideCategoria = tipo === "blush";
+            }
+
+            else if (tipoSeleccionado === "mascara") {
+                coincideCategoria = tipo === "mascara";
+            }
+
+            else {
+                coincideCategoria = tipo === tipoSeleccionado;
+            }
+        }
 
         return coincideTexto && coincideCategoria;
     });
@@ -150,28 +189,58 @@ function cargarDetalle() {
 
     const producto = JSON.parse(datos);
 
-    document.getElementById("nombreProducto").textContent =
-        producto.name || "Sin nombre";
+    const nombre =
+        document.getElementById("nombreProducto");
 
-    document.getElementById("marcaProducto").textContent =
-        "Marca: " + (producto.brand || "No disponible");
+    const marca =
+        document.getElementById("marcaProducto");
 
-    document.getElementById("categoriaProducto").textContent =
-        "Categoría: " + (producto.product_type || "No disponible");
+    const categoriaProducto =
+        document.getElementById("categoriaProducto");
 
-    document.getElementById("precioProducto").textContent =
-        producto.price
-            ? "Precio: $" + producto.price
-            : "Precio: No disponible";
+    const precio =
+        document.getElementById("precioProducto");
 
-    document.getElementById("descripcionProducto").textContent =
-        producto.description ||
-        "No hay descripción disponible.";
+    const descripcion =
+        document.getElementById("descripcionProducto");
 
     const imagen =
         document.getElementById("imagenProducto");
 
-    imagen.src = "labial.jpg";
+    if (nombre) {
+        nombre.textContent =
+            producto.name || "Sin nombre";
+    }
+
+    if (marca) {
+        marca.textContent =
+            "Marca: " +
+            (producto.brand || "No disponible");
+    }
+
+    if (categoriaProducto) {
+        categoriaProducto.textContent =
+            "Categoría: " +
+            (producto.product_type || "No disponible");
+    }
+
+    if (precio) {
+        precio.textContent =
+            producto.price
+                ? "Precio: $" + producto.price
+                : "Precio: No disponible";
+    }
+
+    if (descripcion) {
+        descripcion.textContent =
+            producto.description ||
+            "No hay descripción disponible.";
+    }
+
+    if (imagen) {
+        imagen.src =
+            "https://lhernandez074-hub.github.io/fase-3/labial.jpg";
+    }
 }
 
 if (contenedorProductos) {
@@ -179,11 +248,17 @@ if (contenedorProductos) {
 }
 
 if (buscador) {
-    buscador.addEventListener("input", filtrarProductos);
+    buscador.addEventListener(
+        "input",
+        filtrarProductos
+    );
 }
 
 if (categoria) {
-    categoria.addEventListener("change", filtrarProductos);
+    categoria.addEventListener(
+        "change",
+        filtrarProductos
+    );
 }
 
 if (document.getElementById("detalleProducto")) {

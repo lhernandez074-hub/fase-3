@@ -1,5 +1,4 @@
 const API_URL = "https://makeup-api.herokuapp.com/api/v1/products.json";
-alert("NUEVO APP.JS FUNCIONANDO");
 
 const contenedorProductos = document.getElementById("productos");
 const buscador = document.getElementById("buscador");
@@ -63,7 +62,8 @@ function mostrarProductos(lista) {
 
         tarjeta.className = "col-md-4 col-lg-3 mb-4";
 
-        const imagen = imagenes[indice % imagenes.length];
+        const imagen =
+            imagenes[indice % imagenes.length];
 
         tarjeta.innerHTML = `
 
@@ -122,7 +122,7 @@ function filtrarProductos() {
     const texto =
         buscador.value.toLowerCase().trim();
 
-    const categoriaSeleccionada =
+    const seleccion =
         categoria.value.toLowerCase().trim();
 
 
@@ -143,13 +143,47 @@ function filtrarProductos() {
             marca.includes(texto);
 
 
-        const coincideCategoria =
-            categoriaSeleccionada === "todos" ||
-            tipo === categoriaSeleccionada;
+        if (seleccion === "todos") {
+            return coincideBusqueda;
+        }
 
 
-        return coincideBusqueda && coincideCategoria;
+        if (seleccion === "lipstick") {
 
+            return coincideBusqueda &&
+                   tipo.includes("lip");
+        }
+
+
+        if (seleccion === "foundation") {
+
+            return coincideBusqueda &&
+                   tipo.includes("foundation");
+        }
+
+
+        if (seleccion === "eyeshadow") {
+
+            return coincideBusqueda &&
+                   tipo.includes("eye");
+        }
+
+
+        if (seleccion === "blush") {
+
+            return coincideBusqueda &&
+                   tipo.includes("blush");
+        }
+
+
+        if (seleccion === "mascara") {
+
+            return coincideBusqueda &&
+                   tipo.includes("mascara");
+        }
+
+
+        return coincideBusqueda;
     });
 
 
@@ -204,12 +238,14 @@ function cargarDetalle() {
 
 
     if (nombre) {
+
         nombre.textContent =
             producto.name || "Sin nombre";
     }
 
 
     if (marca) {
+
         marca.textContent =
             "Marca: " +
             (producto.brand || "No disponible");
@@ -217,6 +253,7 @@ function cargarDetalle() {
 
 
     if (categoriaProducto) {
+
         categoriaProducto.textContent =
             "Categoría: " +
             (producto.product_type || "No disponible");
@@ -224,6 +261,7 @@ function cargarDetalle() {
 
 
     if (precio) {
+
         precio.textContent =
             producto.price
             ? "Precio: $" + producto.price
@@ -232,6 +270,7 @@ function cargarDetalle() {
 
 
     if (descripcion) {
+
         descripcion.textContent =
             producto.description ||
             "No hay descripción disponible.";
@@ -239,6 +278,7 @@ function cargarDetalle() {
 
 
     if (imagen) {
+
         imagen.src =
             "https://lhernandez074-hub.github.io/fase-3/labial.jpg";
     }
@@ -246,11 +286,13 @@ function cargarDetalle() {
 
 
 if (contenedorProductos) {
+
     obtenerProductos();
 }
 
 
 if (buscador) {
+
     buscador.addEventListener(
         "input",
         filtrarProductos
@@ -259,6 +301,7 @@ if (buscador) {
 
 
 if (categoria) {
+
     categoria.addEventListener(
         "change",
         filtrarProductos
@@ -267,5 +310,6 @@ if (categoria) {
 
 
 if (document.getElementById("detalleProducto")) {
+
     cargarDetalle();
 }

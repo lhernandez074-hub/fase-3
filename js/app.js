@@ -1,19 +1,27 @@
 const API_URL = "https://makeup-api.herokuapp.com/api/v1/products.json";
+
 const contenedorProductos = document.getElementById("productos");
 const buscador = document.getElementById("buscador");
 const categoria = document.getElementById("categoria");
 
 let productos = [];
 
-const IMAGEN_RESPALDO =
-    "https://dummyimage.com/300x250/f8d7e3/c2185b&text=Maquillaje";
+const imagenes = {
+    lipstick: "imagenes/labial.jpg",
+    foundation: "imagenes/base.jpg",
+    eyeshadow: "imagenes/sombra.jpg",
+    blush: "imagenes/rubor.jpg",
+    mascara: "imagenes/mascara.jpg"
+};
+
+const imagenRespaldo = "imagenes/labial.jpg";
 
 async function obtenerProductos() {
     try {
         const respuesta = await fetch(API_URL);
 
         if (!respuesta.ok) {
-            throw new Error("No se pudo conectar con la API");
+            throw new Error("Error al conectar con la API");
         }
 
         productos = await respuesta.json();
@@ -21,7 +29,7 @@ async function obtenerProductos() {
         mostrarProductos(productos);
 
     } catch (error) {
-        console.error("Error al obtener los productos:", error);
+        console.error(error);
 
         if (contenedorProductos) {
             contenedorProductos.innerHTML = `
@@ -54,10 +62,9 @@ function mostrarProductos(lista) {
 
         tarjeta.className = "col-md-4 col-lg-3 mb-4";
 
-        const imagen = producto.image_link &&
-                       producto.image_link.trim() !== ""
-                       ? producto.image_link
-                       : IMAGEN_RESPALDO;
+        const tipo = producto.product_type || "";
+
+        const imagen = imagenes[tipo] || imagenRespaldo;
 
         tarjeta.innerHTML = `
             <div class="card h-100 shadow-sm">
@@ -66,7 +73,7 @@ function mostrarProductos(lista) {
                     src="${imagen}"
                     class="card-img-top"
                     alt="${producto.name || "Producto"}"
-                    onerror="this.onerror=null; this.src='${IMAGEN_RESPALDO}'"
+                    style="height: 250px; object-fit: contain; padding: 15px;"
                 >
 
                 <div class="card-body">
@@ -162,8 +169,7 @@ function cargarDetalle() {
 
     if (!datos) return;
 
-    const producto =
-        JSON.parse(datos);
+    const producto = JSON.parse(datos);
 
     const imagen =
         document.getElementById("imagenProducto");
@@ -185,16 +191,10 @@ function cargarDetalle() {
 
     if (imagen) {
 
-        imagen.src =
-            producto.image_link &&
-            producto.image_link.trim() !== ""
-                ? producto.image_link
-                : IMAGEN_RESPALDO;
+        const tipo = producto.product_type || "";
 
-        imagen.onerror = function() {
-            this.onerror = null;
-            this.src = IMAGEN_RESPALDO;
-        };
+        imagen.src =
+            imagenes[tipo] || imagenRespaldo;
     }
 
     if (nombre) {

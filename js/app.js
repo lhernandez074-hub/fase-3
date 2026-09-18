@@ -6,23 +6,20 @@ const categoria = document.getElementById("categoria");
 
 let productos = [];
 
-// Imágenes que están directamente en el repositorio
-const imagenes = {
-    lipstick: "labial.jpg",
-    foundation: "rubor.jpg",
-    eyeshadow: "sombra.jpg",
-    blush: "rubor.jpg",
-    mascara: "rimel.jpg"
-};
-
-const imagenRespaldo = "labial.jpg";
+const imagenes = [
+    "labial.jpg",
+    "base.jpg",
+    "sombra.jpg",
+    "rubor.jpg",
+    "rimel.jpg"
+];
 
 async function obtenerProductos() {
     try {
         const respuesta = await fetch(API_URL);
 
         if (!respuesta.ok) {
-            throw new Error("No se pudo conectar con la API");
+            throw new Error("Error al conectar con la API");
         }
 
         productos = await respuesta.json();
@@ -30,42 +27,28 @@ async function obtenerProductos() {
         mostrarProductos(productos);
 
     } catch (error) {
-        console.error("Error:", error);
+        console.error(error);
 
-        if (contenedorProductos) {
-            contenedorProductos.innerHTML = `
-                <p class="text-center text-danger">
-                    No se pudieron cargar los productos.
-                </p>
-            `;
-        }
+        contenedorProductos.innerHTML = `
+            <p class="text-center text-danger">
+                No se pudieron cargar los productos.
+            </p>
+        `;
     }
 }
 
 function mostrarProductos(lista) {
 
-    if (!contenedorProductos) return;
-
     contenedorProductos.innerHTML = "";
 
-    if (lista.length === 0) {
-        contenedorProductos.innerHTML = `
-            <p class="text-center">
-                No se encontraron productos.
-            </p>
-        `;
-        return;
-    }
-
-    lista.slice(0, 50).forEach(producto => {
+    lista.slice(0, 30).forEach((producto, indice) => {
 
         const tarjeta = document.createElement("div");
 
         tarjeta.className = "col-md-4 col-lg-3 mb-4";
 
-        const tipo = (producto.product_type || "").toLowerCase();
-
-        const imagen = imagenes[tipo] || imagenRespaldo;
+        // Utiliza nuestras imágenes locales
+        const imagen = imagenes[indice % imagenes.length];
 
         tarjeta.innerHTML = `
             <div class="card h-100 shadow-sm">
@@ -73,8 +56,8 @@ function mostrarProductos(lista) {
                 <img
                     src="${imagen}"
                     class="card-img-top"
-                    alt="${producto.name || "Producto de maquillaje"}"
-                    style="height: 250px; object-fit: contain; padding: 15px;"
+                    alt="Producto de maquillaje"
+                    style="height:250px; object-fit:contain; padding:15px;"
                 >
 
                 <div class="card-body">
@@ -84,8 +67,7 @@ function mostrarProductos(lista) {
                     </h3>
 
                     <p class="card-text">
-                        Marca:
-                        ${producto.brand || "No disponible"}
+                        Marca: ${producto.brand || "No disponible"}
                     </p>
 
                     <p class="card-text">
@@ -116,13 +98,8 @@ function mostrarProductos(lista) {
 
 function filtrarProductos() {
 
-    const texto = buscador
-        ? buscador.value.toLowerCase()
-        : "";
-
-    const tipo = categoria
-        ? categoria.value
-        : "todos";
+    const texto = buscador.value.toLowerCase();
+    const tipo = categoria.value;
 
     const resultado = productos.filter(producto => {
 
@@ -132,7 +109,7 @@ function filtrarProductos() {
         const marca =
             (producto.brand || "").toLowerCase();
 
-        const categoriaProducto =
+        const tipoProducto =
             (producto.product_type || "").toLowerCase();
 
         const coincideTexto =
@@ -141,7 +118,7 @@ function filtrarProductos() {
 
         const coincideCategoria =
             tipo === "todos" ||
-            categoriaProducto === tipo;
+            tipoProducto === tipo;
 
         return coincideTexto && coincideCategoria;
     });
@@ -171,89 +148,44 @@ function cargarDetalle() {
 
     if (!datos) return;
 
-    const producto =
-        JSON.parse(datos);
+    const producto = JSON.parse(datos);
+
+    document.getElementById("nombreProducto").textContent =
+        producto.name || "Sin nombre";
+
+    document.getElementById("marcaProducto").textContent =
+        "Marca: " + (producto.brand || "No disponible");
+
+    document.getElementById("categoriaProducto").textContent =
+        "Categoría: " + (producto.product_type || "No disponible");
+
+    document.getElementById("precioProducto").textContent =
+        producto.price
+            ? "Precio: $" + producto.price
+            : "Precio: No disponible";
+
+    document.getElementById("descripcionProducto").textContent =
+        producto.description ||
+        "No hay descripción disponible.";
 
     const imagen =
         document.getElementById("imagenProducto");
 
-    const nombre =
-        document.getElementById("nombreProducto");
-
-    const marca =
-        document.getElementById("marcaProducto");
-
-    const categoriaProducto =
-        document.getElementById("categoriaProducto");
-
-    const precio =
-        document.getElementById("precioProducto");
-
-    const descripcion =
-        document.getElementById("descripcionProducto");
-
-    if (imagen) {
-
-        const tipo =
-            (producto.product_type || "").toLowerCase();
-
-        imagen.src =
-            imagenes[tipo] || imagenRespaldo;
-    }
-
-    if (nombre) {
-        nombre.textContent =
-            producto.name || "Sin nombre";
-    }
-
-    if (marca) {
-        marca.textContent =
-            "Marca: " +
-            (producto.brand || "No disponible");
-    }
-
-    if (categoriaProducto) {
-        categoriaProducto.textContent =
-            "Categoría: " +
-            (producto.product_type || "No disponible");
-    }
-
-    if (precio) {
-        precio.textContent =
-            producto.price
-                ? "Precio: $" + producto.price
-                : "Precio: No disponible";
-    }
-
-    if (descripcion) {
-        descripcion.textContent =
-            producto.description ||
-            "No hay descripción disponible.";
-    }
+    imagen.src = "labial.jpg";
 }
 
-// Cargar productos
 if (contenedorProductos) {
     obtenerProductos();
 }
 
-// Buscador
 if (buscador) {
-    buscador.addEventListener(
-        "input",
-        filtrarProductos
-    );
+    buscador.addEventListener("input", filtrarProductos);
 }
 
-// Filtro por categoría
 if (categoria) {
-    categoria.addEventListener(
-        "change",
-        filtrarProductos
-    );
+    categoria.addEventListener("change", filtrarProductos);
 }
 
-// Cargar detalle
 if (document.getElementById("detalleProducto")) {
     cargarDetalle();
 }

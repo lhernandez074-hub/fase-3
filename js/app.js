@@ -1,10 +1,12 @@
 const API_URL = "https://makeup-api.herokuapp.com/api/v1/products.json";
-
 const contenedorProductos = document.getElementById("productos");
 const buscador = document.getElementById("buscador");
 const categoria = document.getElementById("categoria");
 
 let productos = [];
+
+const IMAGEN_RESPALDO =
+    "https://dummyimage.com/300x250/f8d7e3/c2185b&text=Maquillaje";
 
 async function obtenerProductos() {
     try {
@@ -19,7 +21,7 @@ async function obtenerProductos() {
         mostrarProductos(productos);
 
     } catch (error) {
-        console.error("Error:", error);
+        console.error("Error al obtener los productos:", error);
 
         if (contenedorProductos) {
             contenedorProductos.innerHTML = `
@@ -52,11 +54,10 @@ function mostrarProductos(lista) {
 
         tarjeta.className = "col-md-4 col-lg-3 mb-4";
 
-        const imagen =
-            producto.image_link &&
-            producto.image_link.trim() !== ""
-                ? producto.image_link
-                : "https://via.placeholder.com/300x250?text=Sin+imagen";
+        const imagen = producto.image_link &&
+                       producto.image_link.trim() !== ""
+                       ? producto.image_link
+                       : IMAGEN_RESPALDO;
 
         tarjeta.innerHTML = `
             <div class="card h-100 shadow-sm">
@@ -65,7 +66,7 @@ function mostrarProductos(lista) {
                     src="${imagen}"
                     class="card-img-top"
                     alt="${producto.name || "Producto"}"
-                    onerror="this.src='https://via.placeholder.com/300x250?text=Sin+imagen'"
+                    onerror="this.onerror=null; this.src='${IMAGEN_RESPALDO}'"
                 >
 
                 <div class="card-body">
@@ -85,7 +86,9 @@ function mostrarProductos(lista) {
 
                     <p class="card-text fw-bold">
                         Precio:
-                        ${producto.price ? "$" + producto.price : "No disponible"}
+                        ${producto.price
+                            ? "$" + producto.price
+                            : "No disponible"}
                     </p>
 
                     <button
@@ -186,11 +189,11 @@ function cargarDetalle() {
             producto.image_link &&
             producto.image_link.trim() !== ""
                 ? producto.image_link
-                : "https://via.placeholder.com/400x400?text=Sin+imagen";
+                : IMAGEN_RESPALDO;
 
         imagen.onerror = function() {
-            this.src =
-                "https://via.placeholder.com/400x400?text=Sin+imagen";
+            this.onerror = null;
+            this.src = IMAGEN_RESPALDO;
         };
     }
 

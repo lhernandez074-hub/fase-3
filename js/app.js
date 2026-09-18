@@ -1,4 +1,5 @@
 const API_URL = "https://makeup-api.herokuapp.com/api/v1/products.json";
+alert("NUEVO APP.JS FUNCIONANDO");
 
 const contenedorProductos = document.getElementById("productos");
 const buscador = document.getElementById("buscador");
